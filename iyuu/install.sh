@@ -16,6 +16,8 @@ get_docker_info() {
 
 get_docker_network(){
     c_name=$1
+    i_name=$2
+    i_sha256=$3
 }
 
 get_mapping_ports(){
@@ -31,53 +33,60 @@ get_volumns(){
 }
 
 get_qb(){
-    qb_name=$(get_docker_info | grep "linuxserver/qbittorrent")
-    if [ "$qb_name"x != x ]; then
-        echo ${qb_name}
+    qb_info=$(get_docker_info | grep "linuxserver/qbittorrent" |tr -s '\n')
+    if [ "$qb_info"x != x ]; then
+        echo ${qb_info}
         return
     fi
-    echo "未找到 qbittorrent 容器"
 }
 
 get_tr(){
-    tr_name=$(get_docker_info | grep "linuxserver/transmission")
-    if [ "$tr_name"x != x ]; then
-        echo ${tr_name}
+    tr_info=$(get_docker_info | grep "linuxserver/transmission" |tr -s '\n')
+    if [ "$tr_info"x != x ]; then
+        echo ${tr_info}
         return
     fi
-    echo "未找到 transmission 容器"
 }
 
 get_iyuu(){
-    iyuu_name=$(get_docker_info | grep "iyuucn/iyuuplus-dev")
-    if [ "$iyuu_name"x != x ]; then
-        echo ${iyuu_name}
+    iyuu_info=$(get_docker_info | grep "iyuucn/iyuuplus-dev" |tr -s '\n' )
+    if [ "$iyuu_info"x != x ]; then
+        echo ${iyuu_info}
         return
     fi
     
-    iyuu_name=$(get_docker_info | grep "iyuucn/iyuuplus")
-    if [ "$iyuu_name"x != x ]; then
-        echo ${iyuu_name}
+    iyuu_info=$(get_docker_info | grep "iyuucn/iyuuplus" |tr -s '\n' )
+    if [ "$iyuu_info"x != x ]; then
+        echo ${iyuu_info}
         return
     fi
     return
 }
 
-iyuu_info=$(get_iyuu)
-echo "${iyuu_info}"
-if [ "$iyuu_info"x != x ]; then
-    read -p "iyuu已安装,是否重新安装" yN
-    case $yN in
-        [Yy]* )
-        $(reinstall_iyuu ${iyuu_info})
-    ;;
-    esac
-    return
+echo "获取qbittorrent信息"
+qbittorrent_info=$(get_qb)
+if [ -z "$qbittorrent_info" ]; then
+    echo "未安装qbittorrent"
 fi
 
-read -p "iyuu未安装,是否安装" yN
-case $yN in
-    [Yy]* )
-    $(install_iyuu)
-;;
-esac
+echo "获取transmission信息"
+transmission_info=$(get_tr)
+if [ -z "$transmission_info" ]; then
+    echo "未安装transmission"
+fi
+
+if [ -z "${qbittorrent_info}${transmission_info}"];then
+    echo "未找到任何下载器"
+    exit 1
+fi
+
+echo "获取iyuu信息"
+iyuu_info=$(get_iyuu)
+if [ -z "$iyuu_info" ]; then
+    read -p "iyuu未安装,是否安装" yN
+    case $yN in
+        [Yy]* )
+        $(install_iyuu)
+    ;;
+    esac
+fi
