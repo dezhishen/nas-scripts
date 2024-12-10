@@ -67,12 +67,16 @@ echo "获取qbittorrent信息"
 qbittorrent_info=$(get_qb)
 if [ -z "$qbittorrent_info" ]; then
     echo "未安装qbittorrent"
+else
+    echo "已安装qbittorrent"
 fi
 
 echo "获取transmission信息"
 transmission_info=$(get_tr)
 if [ -z "$transmission_info" ]; then
     echo "未安装transmission"
+else
+    echo "已安装transmission"
 fi
 
 if [ -z "${qbittorrent_info}${transmission_info}"]; then
@@ -83,7 +87,7 @@ fi
 echo "获取iyuu信息"
 iyuu_info=$(get_iyuu)
 if [ -z "$iyuu_info" ]; then
-    read -p "iyuu未安装,是否安装" yN
+    read -p "iyuu未安装,是否安装 yN" yN
     case $yN in
         [Yy]* )
         $(install_iyuu)
