@@ -75,7 +75,7 @@ if [ -z "$transmission_info" ]; then
     echo "未安装transmission"
 fi
 
-if [ -z "${qbittorrent_info}${transmission_info}"];then
+if [ -z "${qbittorrent_info}${transmission_info}"]; then
     echo "未找到任何下载器"
     exit 1
 fi
