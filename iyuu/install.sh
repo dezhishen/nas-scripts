@@ -16,6 +16,7 @@ get_docker_network(){
     c_name=$1
     i_name=$2
     i_sha256=$3
+    echo $(docker inspect ${c_name} --format '{{ json .NetworkSettings.Networks }}' | awk -F '"' '{print $2}')
 }
 
 get_mapping_ports(){
@@ -28,8 +29,7 @@ get_volumns(){
     c_name=$1
     i_name=$2
     i_sha256=$3
-    mounts=$(docker inspect --format '{{ range .Mounts }}{{ if eq .Type "bind" }}{{ .Source }}{{ end }}{{ .Name }} : {{ .Destination }}{{ printf "\n" }}{{ end }}' ${c_name})
-    echo ${mounts}
+    echo "$(docker inspect --format '{{ range .Mounts }}{{ if eq .Type "bind" }}{{ .Source }}{{ end }}{{ .Name }} : {{ .Destination }}{{ printf "\n" }}{{ end }}' ${c_name} | tr -s '\n')"
 }
 
 get_qb(){
@@ -79,8 +79,8 @@ install_transmission(){
 }
 
 
-
 echo "开始iyuu安装程序"
+mkdir -p ".args"
 
 qbittorrent_info=$(get_qb)
 if [ -z "$qbittorrent_info" ]; then
@@ -97,6 +97,9 @@ if [ -z "$transmission_info" ]; then
     echo "未安装transmission"
 else
     echo "已安装transmission"
+    echo "【目录挂载】: \n$(get_volumns ${transmission_info})"
+    echo "【网络模式】: \n$(get_docker_network ${transmission_info})"
+    echo "【端口映射】: \n$(get_mapping_ports ${transmission_info})"
 fi
 
 if [ -z "${qbittorrent_info}${transmission_info}" ]; then
