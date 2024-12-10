@@ -54,7 +54,6 @@ get_iyuu(){
         echo ${iyuu_info}
         return
     fi
-    
     iyuu_info=$(get_docker_info | grep "iyuucn/iyuuplus" |tr -s '\n' )
     if [ "$iyuu_info"x != x ]; then
         echo ${iyuu_info}
@@ -63,7 +62,22 @@ get_iyuu(){
     return
 }
 
-echo "获取qbittorrent信息"
+install_iyuu(){
+    #todo 安装iyuu
+}
+
+update_iyuu(){
+    #todo 更新iyuu
+}
+
+install_qbittorrent(){
+    #todo 安装qbittorrent
+}
+
+install_transmission(){
+    #todo 安装transmission
+}
+
 qbittorrent_info=$(get_qb)
 if [ -z "$qbittorrent_info" ]; then
     echo "未安装qbittorrent"
@@ -71,7 +85,6 @@ else
     echo "已安装qbittorrent"
 fi
 
-echo "获取transmission信息"
 transmission_info=$(get_tr)
 if [ -z "$transmission_info" ]; then
     echo "未安装transmission"
@@ -81,6 +94,14 @@ fi
 
 if [ -z "${qbittorrent_info}${transmission_info}" ]; then
     echo "未找到任何下载器"
+    echo "[0]安装qbittorrent"
+    echo "[1]安装transmission"
+    read -p "请输入序号，进行下载器的安装:" seq
+    if [ "${seq}"=1 ]; then
+        install_qbittorrent
+    elif [ "${seq}" == "1" ];then
+        install_transmission
+    fi
     exit 1
 fi
 
