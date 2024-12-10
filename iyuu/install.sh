@@ -87,9 +87,9 @@ if [ -z "$qbittorrent_info" ]; then
     echo "未安装qbittorrent"
 else
     echo "已安装qbittorrent"
-    echo "【目录挂载】: \n$(get_volumns ${qbittorrent})"
-    echo "【网络模式】: \n$(get_docker_network ${qbittorrent})"
-    echo "【端口映射】: \n$(get_mapping_ports ${qbittorrent})"
+    echo "【目录挂载】: \n$(get_volumns ${qbittorrent_info})"
+    echo "【网络模式】: \n$(get_docker_network ${qbittorrent_info})"
+    echo "【端口映射】: \n$(get_mapping_ports ${qbittorrent_info})"
 fi
 
 transmission_info=$(get_tr)
