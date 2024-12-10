@@ -1,7 +1,5 @@
 #!/bin/bash
 set -e
-echo "开始iyuu安装程序"
-
 get_docker_info() {
     if [ "$1"x != x ]; then
         get_docker_info | awk '"'$1'"==$1'
@@ -30,6 +28,8 @@ get_volumns(){
     c_name=$1
     i_name=$2
     i_sha256=$3
+    mounts=$(docker inspect --format '{{ range .Mounts }}{{ if eq .Type "bind" }}{{ .Source }}{{ end }}{{ .Name }} : {{ .Destination }}{{ end }}{{ printf "\n" }}' ${c_name}  |tr -s '\n' )
+    echo ${mounts}
 }
 
 get_qb(){
@@ -78,11 +78,18 @@ install_transmission(){
     echo "todo 安装transmission"
 }
 
+
+
+echo "开始iyuu安装程序"
+
 qbittorrent_info=$(get_qb)
 if [ -z "$qbittorrent_info" ]; then
     echo "未安装qbittorrent"
 else
     echo "已安装qbittorrent"
+    echo "【目录挂载】: \n$(get_volumns ${qbittorrent})"
+    echo "【网络模式】: \n$(get_docker_network ${qbittorrent})"
+    echo "【端口映射】: \n$(get_mapping_ports ${qbittorrent})"
 fi
 
 transmission_info=$(get_tr)
