@@ -64,6 +64,7 @@ get_iyuu(){
 }
 
 iyuu_info=$(get_iyuu)
+echo "${iyuu_info}"
 if [ "$iyuu_info"x != x ]; then
     read -p "iyuu已安装,是否重新安装" yN
     case $yN in
