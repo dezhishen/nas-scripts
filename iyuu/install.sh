@@ -87,10 +87,17 @@ fi
 echo "获取iyuu信息"
 iyuu_info=$(get_iyuu)
 if [ -z "$iyuu_info" ]; then
-    read -p "iyuu未安装,是否安装 yN" yN
+    read -p "iyuu未安装,是否安装 (y/n):" yN
     case $yN in
         [Yy]* )
         $(install_iyuu)
+    ;;
+    esac
+else
+    read -p "iyuu已安装,是否更新 (y/n):" yN
+    case $yN in
+        [Yy]* )
+        $(update_iyuu)
     ;;
     esac
 fi
