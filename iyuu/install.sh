@@ -28,7 +28,7 @@ get_volumns(){
     c_name=$1
     i_name=$2
     i_sha256=$3
-    mounts=$(docker inspect --format '{{ range .Mounts }}{{ if eq .Type "bind" }}{{ .Source }}{{ end }}{{ .Name }} : {{ .Destination }}{{ end }}{{ printf "\n" }}' ${c_name})
+    mounts=$(docker inspect --format '{{ range .Mounts }}{{ if eq .Type "bind" }}{{ .Source }}{{ end }}{{ .Name }} : {{ .Destination }}{{ printf "\n" }}{{ end }}' ${c_name})
     echo ${mounts}
 }
 
