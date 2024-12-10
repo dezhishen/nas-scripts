@@ -93,16 +93,19 @@ else
 fi
 
 if [ -z "${qbittorrent_info}${transmission_info}" ]; then
-    echo "未找到任何下载器"
-    echo "[0]安装qbittorrent"
-    echo "[1]安装transmission"
-    read -p "请输入序号，进行下载器的安装:" seq
-    if [ "${seq}" = "0" ]; then
-        install_qbittorrent
-    elif [ "${seq}" = "1" ];then
-        install_transmission
-    fi
-    exit 1
+    read -p "未找到任何下载器，是否安装 (y/n):" yN
+    case $yN in
+        [Yy]* ) 
+            echo "[0]安装qbittorrent"
+            echo "[1]安装transmission"
+            read -p "请输入序号，进行下载器的安装:" seq
+            if [ "${seq}" = "0" ]; then
+                install_qbittorrent
+            elif [ "${seq}" = "1" ];then
+                install_transmission
+            fi
+        ;;
+    esac
 fi
 
 echo "获取iyuu信息"
@@ -111,14 +114,14 @@ if [ -z "$iyuu_info" ]; then
     read -p "iyuu未安装,是否安装 (y/n):" yN
     case $yN in
         [Yy]* )
-        $(install_iyuu)
-    ;;
+            install_iyuu
+        ;;
     esac
 else
     read -p "iyuu已安装,是否更新 (y/n):" yN
     case $yN in
         [Yy]* )
-        $(update_iyuu)
-    ;;
+            update_iyuu
+        ;;
     esac
 fi
