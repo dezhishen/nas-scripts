@@ -70,11 +70,12 @@ if [ "$iyuu_info"x != x ]; then
         [Yy]* )
         $(reinstall_iyuu ${iyuu_info})
     ;;
-esac
+    esac
 else
     read -p "iyuu未安装,是否安装" yN
     case $yN in
         [Yy]* )
         $(install_iyuu)
     ;;
+    esac
 fi
