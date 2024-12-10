@@ -55,7 +55,7 @@ get_iyuu(){
         return
     fi
     
-    iyuu_name=$(get_docker_info | grep "iyuucn/iyuuplus-")
+    iyuu_name=$(get_docker_info | grep "iyuucn/iyuuplus")
     if [ "$iyuu_name"x != x ]; then
         echo ${iyuu_name}
         return
@@ -72,11 +72,12 @@ if [ "$iyuu_info"x != x ]; then
         $(reinstall_iyuu ${iyuu_info})
     ;;
     esac
-else
-    read -p "iyuu未安装,是否安装" yN
-    case $yN in
-        [Yy]* )
-        $(install_iyuu)
-    ;;
-    esac
+    return
 fi
+
+read -p "iyuu未安装,是否安装" yN
+case $yN in
+    [Yy]* )
+    $(install_iyuu)
+;;
+esac
