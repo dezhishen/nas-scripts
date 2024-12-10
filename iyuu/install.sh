@@ -20,10 +20,14 @@ get_docker_network(){
 
 get_mapping_ports(){
     c_name=$1
+    i_name=$2
+    i_sha256=$3
 }
 
 get_volumns(){
     c_name=$1
+    i_name=$2
+    i_sha256=$3
 }
 
 get_qb(){
@@ -44,4 +48,33 @@ get_tr(){
     echo "未找到 transmission 容器"
 }
 
-get_qb
+get_iyuu(){
+    iyuu_name=$(get_docker_info | grep "iyuucn/iyuuplus-dev")
+    if [ "$iyuu_name"x != x ]; then
+        echo ${iyuu_name}
+        return
+    fi
+    
+    iyuu_name=$(get_docker_info | grep "iyuucn/iyuuplus-")
+    if [ "$iyuu_name"x != x ]; then
+        echo ${iyuu_name}
+        return
+    fi
+    return
+}
+
+iyuu_info=$(get_iyuu)
+if [ "$iyuu_info"x != x ]; then
+    read -p "iyuu已安装,是否重新安装" yN
+    case $yN in
+        [Yy]* )
+        $(reinstall_iyuu ${iyuu_info})
+    ;;
+esac
+else
+    read -p "iyuu未安装,是否安装" yN
+    case $yN in
+        [Yy]* )
+        $(install_iyuu)
+    ;;
+fi
