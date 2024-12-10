@@ -63,19 +63,19 @@ get_iyuu(){
 }
 
 install_iyuu(){
-    #todo 安装iyuu
+    echo "todo 安装iyuu"
 }
 
 update_iyuu(){
-    #todo 更新iyuu
+    echo "todo 更新iyuu"
 }
 
 install_qbittorrent(){
-    #todo 安装qbittorrent
+    echo "todo 安装qbittorrent"
 }
 
 install_transmission(){
-    #todo 安装transmission
+    echo "todo 安装transmission"
 }
 
 qbittorrent_info=$(get_qb)
@@ -97,9 +97,9 @@ if [ -z "${qbittorrent_info}${transmission_info}" ]; then
     echo "[0]安装qbittorrent"
     echo "[1]安装transmission"
     read -p "请输入序号，进行下载器的安装:" seq
-    if [ "${seq}"=1 ]; then
+    if [ "${seq}" = "0" ]; then
         install_qbittorrent
-    elif [ "${seq}" == "1" ];then
+    elif [ "${seq}" = "1" ];then
         install_transmission
     fi
     exit 1
