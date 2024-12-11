@@ -23,6 +23,19 @@ get_mapping_ports(){
     c_name=$1
     i_name=$2
     i_sha256=$3
+    # 获取容器映射的端口
+    docker_ports=$(docker port ${c_name})
+    # 将' -> '替换为'->'
+    docker_ports=$(echo ${docker_ports} | sed 's/ -> /->/g')
+    # 使用空格分割
+    docker_ports=$(echo ${docker_ports} | tr ' ' '\n')
+    for line in ${docker_ports}; do
+        # 使用 -> 分割，左侧为容器端口，右侧为宿主机端口
+        host_port=$(echo ${line} | awk -F '->' '{print $2}')
+        container_port=$(echo ${line} | awk -F '->' '{print $1}')
+        mapping_ports="${mapping_ports}${host_port}:${container_port}\n"
+    done
+    echo ${mapping_ports}
 }
 
 get_volumns(){
@@ -161,7 +174,6 @@ install_qbittorrent(){
 install_transmission(){
     echo "todo 安装transmission"
 }
-
 
 echo "开始iyuu安装程序"
 mkdir -p ".args"
