@@ -176,7 +176,6 @@ install_transmission(){
 }
 
 echo "开始iyuu安装程序"
-mkdir -p ".args"
 
 qbittorrent_info=$(get_qb)
 if [ -z "$qbittorrent_info" ]; then
