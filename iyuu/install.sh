@@ -107,7 +107,12 @@ install_iyuu(){
     ${iyuu_volumns} ${qb_docker_volumns} ${tr_docker_volumns} iyuucn/iyuuplus-dev:latest"
     echo "开始安装iyuu"
     echo "命令: ${docker_comand}"
-    eval ${docker_comand}
+    read -p "是否执行命令 (y/n):" yN
+    case $yN in
+        [Yy]* )
+            eval ${docker_comand}
+        ;;
+    esac
 }
 
 update_iyuu(){
