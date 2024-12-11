@@ -29,7 +29,8 @@ get_volumns(){
     c_name=$1
     i_name=$2
     i_sha256=$3
-    echo "$(docker inspect --format '{{ range .Mounts }}{{ if eq .Type "bind" }}{{ .Source }}{{ end }}{{ .Name }} : {{ .Destination }}{{ printf "\n" }}{{ end }}' ${c_name} | tr -s '\n')"
+    # 使用换行符分割，每一行都是一个source:destination
+    echo "$(docker inspect --format '{{ range .Mounts }}{{ if eq .Type "bind" }}{{ .Source }}{{ end }}{{ .Name }}:{{ .Destination }}{{ printf "\n" }}{{ end }}' ${c_name} | tr -s '\n' | awk '{for(i=1;i<=NF;i++) print $i}' | tr '\n' ' ')"
 }
 
 get_qb(){
@@ -63,11 +64,89 @@ get_iyuu(){
 }
 
 install_iyuu(){
-    echo "todo 安装iyuu"
+    iyuu_volumns=$1
+    if [ -z "$iyuu_volumns" ]; then
+        read -p "输入iyuu自身挂载的目录:" iyuu_volumn_root
+        if [ -z "$iyuu_volumn_root" ]; then
+            echo "未输入iyuu自身挂载的目录"
+            exit 1
+        fi
+        # 如果结尾是/，则去掉
+        if echo "${iyuu_volumn_root}" | grep -q -E "/$"; then
+            iyuu_volumn_root="${iyuu_volumn_root%?}"
+        fi
+        iyuu_volumns="-v ${iyuu_volumn_root}/iyuu:/iyuu -v ${iyuu_volumn_root}/data:/data"
+    fi
+    echo "iyuu_volumns: ${iyuu_volumns}"
+    # 如果安装了qbittorrent，则挂载qbittorrent的所有挂载的目录到/qbittorrent下
+    qb_info=$(get_qb)
+    if [ -n "$qb_info" ]; then
+        volumns=$(get_volumns ${qb_info})
+        qb_docker_volumns=""
+        for volumn in $volumns; do
+            # 使用:分割为source和destination
+            source=$(echo ${volumn} | awk -F: '{print $1}')
+            destination=$(echo ${volumn} | awk -F: '{print $2}')
+            # 拼接为 -v source:/qbittorrent/destination
+            qb_docker_volumns="${qb_docker_volumns} -v ${source}:/qbittorrent${destination}"
+        done
+    fi
+    echo "qb_docker_volumns: ${qb_docker_volumns}"
+    # 如果安装了transmission，则挂载transmission的所有挂载的目录到/transmission下
+    tr_info=$(get_tr)
+    if [ -n "$tr_info" ]; then
+        volumns=$(get_volumns ${tr_info})
+        tr_docker_volumns=""
+        for volumn in $volumns; do
+            source=$(echo ${volumn} | awk -F: '{print $1}')
+            destination=$(echo ${volumn} | awk -F: '{print $2}')
+            tr_docker_volumns="${tr_docker_volumns} -v ${source}:/transmission${destination}"
+        done
+    fi
+    docker_comand="docker run --name=iyuu -d --restart=always --hostname=iyuu -e TZ=Asia/Shanghai \
+    ${iyuu_volumns} ${qb_docker_volumns} ${tr_docker_volumns} iyuucn/iyuuplus-dev:latest"
+    echo "开始安装iyuu"
+    echo "命令: ${docker_comand}"
+    eval ${docker_comand}
 }
 
 update_iyuu(){
-    echo "todo 更新iyuu"
+    iyuu_info=$(get_iyuu)
+    if [ -z "$iyuu_info" ]; then
+        echo "未安装iyuu"
+        exit 1
+    fi
+    read -p "是否仅更新镜像 (y/n):" yN
+    # iyuu的容起名是iyuu_info空格分割的第一个
+    iyuu_name=$(echo ${iyuu_info} | awk '{print $1}')
+    case $yN in
+        [Yy]* )
+            # 使用watchtower更新iyuu
+            docker run --rm --name watchtower-${name} containrrr/watchtower --clean ${iyuu_name}
+        ;;
+        [Nn]* )
+            # 停止并删除容器
+            # 记录 iyuu自身挂载的目录 "/iyuu"和"/data"
+            iyuu_volumns=$(get_volumns ${iyuu_info})
+            # 逐行处理
+            iyuu_final_volumns=""
+            for volumn in $iyuu_volumns; do
+                # 使用:分割为source和destination
+                source=$(echo ${volumn} | awk -F: '{print $1}')
+                destination=$(echo ${volumn} | awk -F: '{print $2}')
+                # 如果destination是/iyuu或/data，记录
+                if [ "${destination}" = "/iyuu" ] || [ "${destination}" = "/data" ]; then
+                    iyuu_final_volumns="${iyuu_final_volumns} -v ${source}:${destination}"
+                fi
+            done
+            echo "保留挂载卷: ${iyuu_final_volumns}"
+            echo "停止旧的容器"
+            docker stop ${iyuu_name}
+            docker rm ${iyuu_name}
+            # 此处iyuu_final_volumns带有空格，使用"包裹
+            install_iyuu "${iyuu_final_volumns}"
+        ;;
+    esac
 }
 
 install_qbittorrent(){
