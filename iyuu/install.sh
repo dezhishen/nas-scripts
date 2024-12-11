@@ -103,7 +103,7 @@ install_iyuu(){
             tr_docker_volumns="${tr_docker_volumns} -v ${source}:/transmission${destination}"
         done
     fi
-    docker_comand="docker run --name=iyuu -d --restart=always --hostname=iyuu -e TZ=Asia/Shanghai \
+    docker_comand="docker run --name=iyuu -d --restart=always  --hostname=iyuu -e TZ=Asia/Shanghai -p 8780:8780 \
     ${iyuu_volumns} ${qb_docker_volumns} ${tr_docker_volumns} iyuucn/iyuuplus-dev:latest"
     echo "开始安装iyuu"
     echo "命令: ${docker_comand}"
